@@ -14,6 +14,18 @@
 
 require_once 'uimods.civix.php';
 
+
+/**
+ * Implements hook_civicrm_buildForm().
+ *
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_buildForm
+ */
+function uimods_civicrm_buildForm($formName, &$form) {
+  error_log($formName);
+  // hook in the various renderers
+  CRM_Uimods_Tools_BankAccount::renderForm($formName, $form);
+}
+
 /**
  * Implements hook_civicrm_config().
  *
@@ -135,33 +147,3 @@ _uimods_civix_civicrm_angularModules($angularModules);
 function uimods_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
   _uimods_civix_civicrm_alterSettingsFolders($metaDataFolders);
 }
-
-/**
- * Functions below this ship commented out. Uncomment as required.
- *
-
-/**
- * Implements hook_civicrm_preProcess().
- *
- * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_preProcess
- *
-function uimods_civicrm_preProcess($formName, &$form) {
-
-} // */
-
-/**
- * Implements hook_civicrm_navigationMenu().
- *
- * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_navigationMenu
- *
-function uimods_civicrm_navigationMenu(&$menu) {
-  _uimods_civix_insert_navigation_menu($menu, NULL, array(
-    'label' => ts('The Page', array('domain' => 'at.greenpeace.uimods')),
-    'name' => 'the_page',
-    'url' => 'civicrm/the-page',
-    'permission' => 'access CiviReport,access CiviContribute',
-    'operator' => 'OR',
-    'separator' => 0,
-  ));
-  _uimods_civix_navigationMenu($menu);
-} // */
