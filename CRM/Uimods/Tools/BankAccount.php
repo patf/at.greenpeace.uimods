@@ -76,12 +76,12 @@ class CRM_Uimods_Tools_BankAccount {
     } elseif (empty($reference)) {
       return "invalid";
     } else {
-      $contact_search = civicrm_api3('BankingAccount', 'getvalue', array('id' => $ba_id, 'return' => 'contact_id'));
-      $contact_id = $contact_search['result'];
-      if (empty($contact_id)) {
+      $contact_search = civicrm_api3('BankingAccount', 'get', array('id' => $ba_id, 'return' => 'contact_id'));
+      $ba = reset($contact_search['result']);
+      if (empty($ba['contact_id'])) {
         return $reference;
       } else {
-        $link = CRM_Utils_System::url('civicrm/contact/view', "reset=1&amp;cid={$contact_id}&amp;selectedChild=bank_accounts");
+        $link = CRM_Utils_System::url('civicrm/contact/view', "reset=1&amp;cid={$ba['contact_id']}&amp;selectedChild=bank_accounts");
         return "<a href=\"{$link}\">{$reference}</a>";        
       }
     }
