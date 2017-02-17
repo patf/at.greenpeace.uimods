@@ -24,7 +24,7 @@ class CRM_Uimods_Tools_BankAccount {
     if (  $formName == 'CRM_Contribute_Form_ContributionView'
        || $formName == 'CRM_Activity_Form_Activity') {
       $viewCustomData = $form->get_template_vars('viewCustomData');
-      $contact_id = self::getContactID($form);
+      // $contact_id = self::getContactID($form);
       $modified = FALSE;
 
       $bank_account_fields = CRM_Uimods_Config::getSingleton()->getAccountCustomFields();
@@ -34,7 +34,7 @@ class CRM_Uimods_Tools_BankAccount {
           foreach ($custom_field_ids as $custom_field_id) {
             if (isset($groupCustomData['fields'][$custom_field_id]['field_value'])) {
               $groupCustomData['fields'][$custom_field_id]['field_value'] =
-                self::renderBankAccount($contact_id, $groupCustomData['fields'][$custom_field_id]['field_value']);
+                self::renderBankAccount($groupCustomData['fields'][$custom_field_id]['field_value']);
               $modified = TRUE;
             }
           }
@@ -67,7 +67,7 @@ class CRM_Uimods_Tools_BankAccount {
    * 
    * @return HTML snippet
    */
-  public static function renderBankAccount($contact_id, $ba_id) {
+  public static function renderBankAccount($ba_id) {
     $ba_id = (int) $ba_id;
     $reference = self::getPrimaryBankAccountReference($ba_id);
     
@@ -76,8 +76,14 @@ class CRM_Uimods_Tools_BankAccount {
     } elseif (empty($reference)) {
       return "invalid";
     } else {
-      $link = CRM_Utils_System::url('civicrm/contact/view', "reset=1&amp;cid={$contact_id}&amp;selectedChild=bank_accounts");
-      return "<a href=\"{$link}\">{$reference}</a>";
+      $contact_search = civicrm_api3('BankingAccount', 'getvalue', array('id' => $ba_id, 'return' => 'contact_id'));
+      $contact_id = $contact_search['result'];
+      if (empty($contact_id)) {
+        return $reference;
+      } else {
+        $link = CRM_Utils_System::url('civicrm/contact/view', "reset=1&amp;cid={$contact_id}&amp;selectedChild=bank_accounts");
+        return "<a href=\"{$link}\">{$reference}</a>";        
+      }
     }
   }
 
