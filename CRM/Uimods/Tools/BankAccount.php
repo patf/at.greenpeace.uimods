@@ -76,8 +76,8 @@ class CRM_Uimods_Tools_BankAccount {
     } elseif (empty($reference)) {
       return "invalid";
     } else {
-      $bank_account = civicrm_api3('BankingAccount', 'get', array('id' => $ba_id, 'return' => 'contact_id'));
-      $ba = reset($bank_account['values']);
+      $bank_accounts = civicrm_api3('BankingAccount', 'get', array('id' => $ba_id, 'return' => 'contact_id'));
+      $ba = reset($bank_accounts['values']);
       if (empty($ba['contact_id'])) {
         return $reference;
       } else {
