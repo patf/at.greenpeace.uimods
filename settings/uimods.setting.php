@@ -16,12 +16,12 @@
 * Settings metadata file
 */
 return array(
-  'at.greenpeace.uimods' => array(
+  'at_greenpeace_uimods_config' => array(
     'group_name' => 'GP UIMods',
-    'group' => 'at.greenpeace.uimods',
-    'name' => 'at.greenpeace.uimods',
+    'group' => 'at_greenpeace_uimods',
+    'name' => 'at_greenpeace_uimods_config',
     'type' => 'Array',
-    'default' => "",
+    'default' => array(),
     'add' => '4.6',
     'is_domain' => 1,
     'is_contact' => 0,

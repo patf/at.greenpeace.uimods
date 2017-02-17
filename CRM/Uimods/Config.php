@@ -12,7 +12,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
-define('UIMODS_CONFIG', 'at.greenpeace.uimods');
+define('UIMODS_CONFIG',       'at_greenpeace_uimods_config');
+define('UIMODS_CONFIG_GROUP', 'at_greenpeace_uimods');
  
 /**
  * Store configuration values
@@ -78,7 +79,8 @@ class CRM_Uimods_Config {
     }
 
     // finally, store the settings
-    civicrm_api3('Setting', 'create', array(UIMODS_CONFIG => $uimods_config));
+    // API doesn't work during install: civicrm_api3('Setting', 'create', array(UIMODS_CONFIG => $uimods_config));
+    CRM_Core_BAO_Setting::setItem($uimods_config, UIMODS_CONFIG_GROUP, UIMODS_CONFIG);
   }
 
 }
