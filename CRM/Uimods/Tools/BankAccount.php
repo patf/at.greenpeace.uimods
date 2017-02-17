@@ -29,11 +29,14 @@ class CRM_Uimods_Tools_BankAccount {
 
       $bank_account_fields = CRM_Uimods_Config::getSingleton()->getAccountCustomFields();
       foreach ($bank_account_fields as $custom_group_id => $custom_field_ids) {
-        foreach ($custom_field_ids as $custom_field_id) {
-          if (isset($viewCustomData[$custom_group_id][1]['fields'][$custom_field_id]['field_value'])) {
-            $viewCustomData[$custom_group_id][1]['fields'][$custom_field_id]['field_value'] =
-              self::renderBankAccount($contact_id, $viewCustomData[$custom_group_id][1]['fields'][$custom_field_id]['field_value']);
-            $modified = TRUE;
+        if (!isset($viewCustomData[$custom_group_id])) continue;
+        foreach ($viewCustomData[$custom_group_id] as &$groupCustomData) {
+          foreach ($custom_field_ids as $custom_field_id) {
+            if (isset($groupCustomData['fields'][$custom_field_id]['field_value'])) {
+              $groupCustomData['fields'][$custom_field_id]['field_value'] =
+                self::renderBankAccount($contact_id, $groupCustomData['fields'][$custom_field_id]['field_value']);
+              $modified = TRUE;
+            }
           }
         }
       }

@@ -30,12 +30,12 @@ class CRM_Uimods_Config {
    */
   protected function __construct() {
     // self::updateConfig(); // only for debugging
-    $this->config_data = civicrm_api3('Setting', 'getvalue', array('name' => UIMODS_CONFIG));
+    $this->config_data = civicrm_api3('Setting', 'getvalue', array('name' => UIMODS_CONFIG, 'group' => UIMODS_CONFIG_GROUP));
 
     if (empty($this->config_data)) {
       // if it's empty, try reloading
       self::updateConfig();
-      $this->config_data = civicrm_api3('Setting', 'getvalue', array('name' => UIMODS_CONFIG));
+      $this->config_data = civicrm_api3('Setting', 'getvalue', array('name' => UIMODS_CONFIG, 'group' => UIMODS_CONFIG_GROUP));
     }
   }
 
