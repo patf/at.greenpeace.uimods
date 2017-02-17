@@ -70,6 +70,10 @@ function uimods_civicrm_uninstall() {
  */
 function uimods_civicrm_enable() {
   _uimods_civix_civicrm_enable();
+
+  // update config
+  include_once('CRM/Uimods/Config.php');
+  CRM_Uimods_Config::updateConfig();
 }
 
 /**
