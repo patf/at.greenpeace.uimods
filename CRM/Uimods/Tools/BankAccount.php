@@ -23,10 +23,11 @@ class CRM_Uimods_Tools_BankAccount {
   public static function renderForm($formName, &$form) {
     if (  $formName == 'CRM_Contribute_Form_ContributionView'
        || $formName == 'CRM_Activity_Form_Activity') {
-      $bank_account_fields = CRM_Uimods_Config::getAccountCustomFields();
       $viewCustomData = $form->get_template_vars('viewCustomData');
-      $contact_id = $form->get_template_vars('contact_id');
+      $contact_id = self::getContactID($form);
       $modified = FALSE;
+
+      $bank_account_fields = CRM_Uimods_Config::getSingleton()->getAccountCustomFields();
       foreach ($bank_account_fields as $custom_group_id => $custom_field_ids) {
         foreach ($custom_field_ids as $custom_field_id) {
           if (isset($viewCustomData[$custom_group_id][1]['fields'][$custom_field_id]['field_value'])) {
@@ -43,6 +44,20 @@ class CRM_Uimods_Tools_BankAccount {
       }
     }
   }
+
+  /**
+   * tries to extract the contact ID from the given form
+   */
+  public static function getContactID(&$form) {
+    $contact_id = $form->get_template_vars('contact_id');
+    if (empty($contact_id)) {
+      // try another type...
+      $contact_id = $form->get_template_vars('contactId');
+    }
+
+    return $contact_id;
+  }
+
 
   /**
    * Will render a bank account for the UI

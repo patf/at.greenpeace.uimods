@@ -21,7 +21,6 @@ require_once 'uimods.civix.php';
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_buildForm
  */
 function uimods_civicrm_buildForm($formName, &$form) {
-  error_log($formName);
   // hook in the various renderers
   CRM_Uimods_Tools_BankAccount::renderForm($formName, $form);
 }
