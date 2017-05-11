@@ -16,6 +16,20 @@ require_once 'uimods.civix.php';
 
 
 /**
+ * Implements hook_civicrm_post()
+ */
+function uimods_civicrm_post($op, $objectName, $objectId, &$objectRef) {
+  CRM_Uimods_Tools_BirthYear::process_post($op, $objectName, $objectId, $objectRef);
+}
+
+/**
+ * Implements hook_civicrm_custom
+ */
+function uimods_civicrm_custom( $op, $groupID, $entityID, &$params ) {
+  CRM_Uimods_Tools_BirthYear::process_custom($op, $groupID, $entityID, $params);
+}
+
+/**
  * Implements hook_civicrm_buildForm().
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_buildForm
