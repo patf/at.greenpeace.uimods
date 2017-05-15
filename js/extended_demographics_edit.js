@@ -11,11 +11,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
-// var birth_year_field = "#custom_BIRTH_YEAR_FIELD_1";
-var birth_year_field = "#custom_15_1";
-
-
 // correcting measures for birth year (see https://redmine.greenpeace.at/issues/517#change-5511)
+var birth_year_field = "#custom_BIRTH_YEAR_FIELD_1";
 cj(birth_year_field).change(function() {
   var value = cj(birth_year_field).val();
   var current_year = new Date().getFullYear();
