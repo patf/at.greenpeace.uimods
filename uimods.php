@@ -40,6 +40,19 @@ function uimods_civicrm_buildForm($formName, &$form) {
 }
 
 /**
+ * implement the hook to customize the summary view
+ */
+function uimods_civicrm_pageRun( &$page ) {
+  if ($page->getVar('_name') == 'CRM_Contact_Page_View_Summary') {
+      $script = file_get_contents(__DIR__ . '/js/summary_view.js');
+      $script = str_replace('EXTENDED_DEMOGRAPHICS', CRM_Uimods_Config::getExtendedDemographicsGroupID(), $script);
+      CRM_Core_Region::instance('page-header')->add(array(
+        'script' => $script,
+        ));
+  }
+}
+
+/**
  * Implements hook_civicrm_config().
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_config

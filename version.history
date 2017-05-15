@@ -1,9 +1,12 @@
+Version 0.3
+===========
+- data dependency between birth_date and birth year (custom)
 
 Version 0.2
 ===========
-Keep birth_date und birth year in sync (from uk.co.mjwconsulting.birthyear)
+- Keep birth_date und birth year in sync (from uk.co.mjwconsulting.birthyear)
 
 Version 0.1
 ===========
-Basic infrastructure
-Render bank account custom fields
+- Basic infrastructure
+- Render bank account custom fields
