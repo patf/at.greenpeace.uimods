@@ -106,6 +106,23 @@ class CRM_Uimods_Tools_BirthYear {
 
 
   /**
+   * process CUSTOM hook
+   */
+  public static function process_buildForm($formName, &$form) {
+    if ($formName == 'CRM_Contact_Form_Inline_CustomData') {
+      $birthyear_field = self::getCustomField();
+      if ($birthyear_field) {
+        $script = file_get_contents(__DIR__ . '/../../../js/extended_demographics_edit.js');
+        $script = str_replace('BIRTH_YEAR_FIELD', $birthyear_field['id'], $script);
+        CRM_Core_Region::instance('page-footer')->add(array(
+          'script' => $script,
+          ));
+      }
+    }
+  }
+
+
+  /**
    * Get the birthyear field (cached)
    *
    * copied from uk.co.mjwconsulting.birthyear

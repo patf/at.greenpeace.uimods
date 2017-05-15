@@ -1,6 +1,7 @@
 Version 0.3
 ===========
-- data dependency between birth_date and birth year (custom)
+- data dependency between birth_date and birth_year (custom)
+- added birth_year input restrictions
 
 Version 0.2
 ===========
