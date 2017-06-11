@@ -30,6 +30,15 @@ function uimods_civicrm_custom( $op, $groupID, $entityID, &$params ) {
 }
 
 /**
+ * Implements hook_civicrm_searchColumns
+ */
+function uimods_civicrm_searchColumns( $objectName, &$headers, &$rows, &$selector ) {
+  if ($objectName == 'contribution') {
+    CRM_Uimods_Tools_SearchTableAdjustments::adjustContributionTable($objectName, $headers, $rows, $selector);
+  }
+}
+
+/**
  * Implements hook_civicrm_buildForm().
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_buildForm
