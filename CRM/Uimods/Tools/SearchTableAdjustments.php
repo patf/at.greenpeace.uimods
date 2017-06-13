@@ -56,7 +56,11 @@ class CRM_Uimods_Tools_SearchTableAdjustments {
     // manipulate data
     foreach ($rows as &$row) {
       $membership_id = $row['membership_id'];
-      $row[UIMODS_STA_MEMBERSHIPPAYMENT_FIELD] = $payment_modes[$membership_id];
+      if (!empty($payment_modes[$membership_id])) {
+        $row[UIMODS_STA_MEMBERSHIPPAYMENT_FIELD] = $payment_modes[$membership_id];
+      } else {
+        $row[UIMODS_STA_MEMBERSHIPPAYMENT_FIELD] = '';
+      }
     }
   }
 
