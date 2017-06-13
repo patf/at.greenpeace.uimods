@@ -52,15 +52,40 @@ function uimods_civicrm_buildForm($formName, &$form) {
 }
 
 /**
+ * Implements hook_civicrm_alterTemplateFile().
+ *
+ * Use modified templates for Membership and Contribution lists
+ * If they stop working (after a CiviCRM upgrade):
+ *  1) check if they have changed (compare checksums). If so:
+ *  2) create a diff of our files vs. the original file (4.6.22)
+ *  3) try to apply (patch) the original files and copy to extension
+ */
+function uimods_civicrm_alterTemplateFile($formName, &$form, $context, &$tplName) {
+  if ($tplName == 'CRM/Member/Form/Selector.tpl') {
+    // modified version based on CiviCRM 4.6.22 - SHA1: e91bc448a67142258d27fb1deef05284f0a25aa6
+    $tplName = 'CRM/Member/Form/UimodsSelector.tpl';
+  } elseif ($tplName == 'CRM/Member/Page/Tab.tpl') {
+    // modified version based on CiviCRM 4.6.22 - SHA1: fa69538de32175029221af5583c25b3c607b5c22
+    $tplName = 'CRM/Member/Page/UimodsTab.tpl';
+  } elseif ($tplName == 'CRM/Contribute/Page/Tab.tpl') {
+    // modified version based on CiviCRM 4.6.22 - SHA1: 9f82712218a9a19aabfc0906c4afbcd6faf19ee7
+    $tplName = 'CRM/Contribute/Page/UimodsTab.tpl';
+  }
+}
+
+/**
  * implement the hook to customize the summary view
  */
 function uimods_civicrm_pageRun( &$page ) {
-  if ($page->getVar('_name') == 'CRM_Contact_Page_View_Summary') {
+  $page_name = $page->getVar('_name');
+  if ($page_name == 'CRM_Contact_Page_View_Summary') {
       $script = file_get_contents(__DIR__ . '/js/summary_view.js');
       $script = str_replace('EXTENDED_DEMOGRAPHICS', CRM_Uimods_Config::getExtendedDemographicsGroupID(), $script);
       CRM_Core_Region::instance('page-header')->add(array(
         'script' => $script,
         ));
+  } elseif ($page_name == 'CRM_Member_Page_Tab') {
+
   }
 }
 

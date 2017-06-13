@@ -17,7 +17,7 @@
 define('UIMODS_STA_CAMPAIGN_COLUMN',          2);
 define('UIMODS_STA_CAMPAIGN_FIELD',           'contribution_source');
 define('UIMODS_STA_PAYMENTINSTRUMENT_COLUMN', 4);
-define('UIMODS_STA_PAYMENTINSTRUMENT_FIELD',  'thankyou_date');
+define('UIMODS_STA_PAYMENTINSTRUMENT_FIELD',  'payment_instrument');
 define('UIMODS_STA_BANKACCOUNT_COLUMN',       6);
 define('UIMODS_STA_BANKACCOUNT_FIELD',        'product_name');
 
@@ -25,7 +25,7 @@ define('UIMODS_STA_BANKACCOUNT_FIELD',        'product_name');
 define('UIMODS_STA_MEMBERSHIPID_COLUMN',      6);
 define('UIMODS_STA_MEMBERSHIPID_FIELD',       'membership_source');
 define('UIMODS_STA_MEMBERSHIPPAYMENT_COLUMN', 8);
-define('UIMODS_STA_MEMBERSHIPPAYMENT_FIELD',  'auto_renew');
+define('UIMODS_STA_MEMBERSHIPPAYMENT_FIELD',  'payment_mode');
 
 /**
  * Keep birth_date and birth year in sync
@@ -164,17 +164,16 @@ class CRM_Uimods_Tools_SearchTableAdjustments {
       }
 
       // set payment instrument
-      // NEED template change
-      // if (!empty($missing_data['values'][$contribution_id]['payment_instrument_id'])) {
-      //   $payment_instrument_id = $missing_data['values'][$contribution_id]['payment_instrument_id'];
-      //   if (!empty($payment_instruments[$payment_instrument_id])) {
-      //     $row[UIMODS_STA_PAYMENTINSTRUMENT_FIELD] = $payment_instruments[$payment_instrument_id];
-      //   } else {
-      //     $row[UIMODS_STA_PAYMENTINSTRUMENT_FIELD] = 'n/a';
-      //   }
-      // } else {
-      //   $row[UIMODS_STA_PAYMENTINSTRUMENT_FIELD] = '';
-      // }
+      if (!empty($missing_data['values'][$contribution_id]['payment_instrument_id'])) {
+        $payment_instrument_id = $missing_data['values'][$contribution_id]['payment_instrument_id'];
+        if (!empty($payment_instruments[$payment_instrument_id])) {
+          $row[UIMODS_STA_PAYMENTINSTRUMENT_FIELD] = $payment_instruments[$payment_instrument_id];
+        } else {
+          $row[UIMODS_STA_PAYMENTINSTRUMENT_FIELD] = 'n/a';
+        }
+      } else {
+        $row[UIMODS_STA_PAYMENTINSTRUMENT_FIELD] = '';
+      }
     }
   }
 }
