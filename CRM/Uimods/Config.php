@@ -25,6 +25,7 @@ class CRM_Uimods_Config {
   protected $config_data = NULL;
   protected static $singleton = NULL;
   protected static $extended_demographics_group = NULL;
+  protected static $incoming_ba_field = NULL;
 
   /**
    * Internal constructor
@@ -57,6 +58,21 @@ class CRM_Uimods_Config {
    */
   public function getAccountCustomFields() {
     return $this->config_data['account_custom_fields'];
+  }
+
+  /**
+   * Get the custom_xx field name for the contribution's incoming bank account
+   *
+   * @return string custom_xx
+   */
+  public static function getIncomingBAField() {
+    if (self::$incoming_ba_field === NULL) {
+      self::$incoming_ba_field = civicrm_api3('CustomField', 'getvalue', array(
+        'return'          => 'id',
+        'name'            => 'from_ba',
+        'custom_group_id' => 'contribution_information'));
+    }
+    return 'custom_' . self::$incoming_ba_field;
   }
 
 
