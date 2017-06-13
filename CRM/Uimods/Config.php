@@ -26,6 +26,8 @@ class CRM_Uimods_Config {
   protected static $singleton = NULL;
   protected static $extended_demographics_group = NULL;
   protected static $incoming_ba_field = NULL;
+  protected static $membership_annual_field = NULL;
+  protected static $membership_frequency_field = NULL;
 
   /**
    * Internal constructor
@@ -75,6 +77,35 @@ class CRM_Uimods_Config {
     return 'custom_' . self::$incoming_ba_field;
   }
 
+  /**
+   * Get the custom_xx field name for the membership's annual field
+   *
+   * @return string custom_xx
+   */
+  public static function getMembershipAnnualField() {
+    if (self::$membership_annual_field === NULL) {
+      self::$membership_annual_field = civicrm_api3('CustomField', 'getvalue', array(
+        'return'          => 'id',
+        'name'            => 'membership_annual',
+        'custom_group_id' => 'membership_payment'));
+    }
+    return 'custom_' . self::$membership_annual_field;
+  }
+
+  /**
+   * Get the custom_xx field name for the membership's frequency field
+   *
+   * @return string custom_xx
+   */
+  public static function getMembershipFrequencyField() {
+    if (self::$membership_frequency_field === NULL) {
+      self::$membership_frequency_field = civicrm_api3('CustomField', 'getvalue', array(
+        'return'          => 'id',
+        'name'            => 'membership_frequency',
+        'custom_group_id' => 'membership_payment'));
+    }
+    return 'custom_' . self::$membership_frequency_field;
+  }
 
 
   /**

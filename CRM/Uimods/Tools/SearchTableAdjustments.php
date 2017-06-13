@@ -239,8 +239,8 @@ class CRM_Uimods_Tools_SearchTableAdjustments {
     }
 
     // find the fields
-    $annual_field    = 'custom_31';
-    $frequency_field = 'custom_32';
+    $annual_field    = CRM_Uimods_Config::getMembershipAnnualField();
+    $frequency_field = CRM_Uimods_Config::getMembershipFrequencyField();
 
     // load payment frequency labels
     $payment_frequencies = array();
