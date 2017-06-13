@@ -14,11 +14,8 @@
 +--------------------------------------------------------*/
 
 // for contribution table
-define('UIMODS_STA_CAMPAIGN_COLUMN',          2);
 define('UIMODS_STA_CAMPAIGN_FIELD',           'contribution_source');
-define('UIMODS_STA_PAYMENTINSTRUMENT_COLUMN', 4);
 define('UIMODS_STA_PAYMENTINSTRUMENT_FIELD',  'payment_instrument');
-define('UIMODS_STA_BANKACCOUNT_COLUMN',       6);
 define('UIMODS_STA_BANKACCOUNT_FIELD',        'product_name');
 
 // for membership search table
@@ -45,30 +42,93 @@ class CRM_Uimods_Tools_SearchTableAdjustments {
     unset($headers[UIMODS_STA_MEMBERSHIPPAYMENT_COLUMN]['sort']);
     unset($headers[UIMODS_STA_MEMBERSHIPPAYMENT_COLUMN]['direction']);
 
+    // collect ids to be loaded
+    $membership_ids = array();
+    foreach ($rows as $row) {
+      if (is_numeric($row['membership_id'])) {
+        $membership_ids[] = $row['membership_id'];
+      }
+    }
+
+    // load payment data
+    $payment_modes = self::getMembershipPaymentModes($membership_ids);
+
     // manipulate data
     foreach ($rows as &$row) {
       $membership_id = $row['membership_id'];
-
-      // set ID
-      $row[UIMODS_STA_MEMBERSHIPID_FIELD] = "#{$membership_id}";
-      $row[UIMODS_STA_MEMBERSHIPPAYMENT_FIELD] = "TEST-TEST";
+      $row[UIMODS_STA_MEMBERSHIPPAYMENT_FIELD] = $payment_modes[$membership_id];
     }
   }
+
+  /**
+   * Adjust the smarty variable for the membership tab (GP-716)
+   */
+  public static function adjustMembershipTableSmarty() {
+    $smarty = CRM_Core_Smarty::singleton();
+    $activeMembers   = $smarty->get_template_vars('activeMembers');
+    $inActiveMembers = $smarty->get_template_vars('inActiveMembers');
+
+    // collect membership ids
+    $membership_ids = array();
+    foreach ($activeMembers as $membership_id => $membership) {
+      $membership_ids[] = $membership_id;
+    }
+    foreach ($inActiveMembers as $membership_id => $membership) {
+      $membership_ids[] = $membership_id;
+    }
+
+    // load payment data
+    $payment_modes = self::getMembershipPaymentModes($membership_ids);
+
+    // adjust payment data
+    foreach ($activeMembers as $membership_id => &$membership) {
+      $membership[UIMODS_STA_MEMBERSHIPPAYMENT_FIELD] = $payment_modes[$membership_id];
+    }
+    foreach ($inActiveMembers as $membership_id => $membership) {
+      $membership[UIMODS_STA_MEMBERSHIPPAYMENT_FIELD] = $payment_modes[$membership_id];
+    }
+
+    // re-assign to smarty
+    $smarty->assign('activeMembers', $activeMembers);
+    $smarty->assign('inActiveMembers', $inActiveMembers);
+  }
+
+
 
   /**
    * Modify the contribution search result table (GP-716)
    */
   public static function adjustContributionTable($objectName, &$headers, &$rows, &$selector) {
     // adjust headers
-    $headers[UIMODS_STA_CAMPAIGN_COLUMN]['name']          = "Campaign";
-    $headers[UIMODS_STA_PAYMENTINSTRUMENT_COLUMN]['name'] = "Paid By";
-    $headers[UIMODS_STA_BANKACCOUNT_COLUMN]['name']       = "Donor's BA";
-    unset($headers[UIMODS_STA_CAMPAIGN_COLUMN]['sort']);
-    unset($headers[UIMODS_STA_CAMPAIGN_COLUMN]['direction']);
-    unset($headers[UIMODS_STA_PAYMENTINSTRUMENT_COLUMN]['sort']);
-    unset($headers[UIMODS_STA_PAYMENTINSTRUMENT_COLUMN]['direction']);
-    unset($headers[UIMODS_STA_BANKACCOUNT_COLUMN]['sort']);
-    unset($headers[UIMODS_STA_BANKACCOUNT_COLUMN]['direction']);
+    $campaign_colum = $payment_instrument_colum = $ba_column = $index = -1;
+    foreach ($headers as &$header) {
+      $index += 1;
+      switch (CRM_Utils_Array::value('sort', $header)) {
+        case 'contribution_source':
+          $header['name'] = "Campaign";
+          unset($header['sort']);
+          unset($header['direction']);
+          $campaign_colum = $index;
+          break;
+
+        case 'thankyou_date':
+          $header['name'] = "Paid via";
+          unset($header['sort']);
+          unset($header['direction']);
+          $payment_instrument_colum = $index;
+          break;
+
+        case 'product_name':
+          $header['name'] = "Donor's BA";
+          unset($header['sort']);
+          unset($header['direction']);
+          $ba_column = $index;
+          break;
+
+        default:
+          break;
+      }
+    }
 
     // collect ids to be loaded
     $contribution_ids = array();
@@ -116,27 +176,12 @@ class CRM_Uimods_Tools_SearchTableAdjustments {
 
     // load bank references
     $bank_account_ids = array();
-    $baId2reference = array();
     foreach ($missing_data['values'] as $contribution) {
       if (!empty($contribution[$incoming_ba_field])) {
         $bank_account_ids[] = (int) $contribution[$incoming_ba_field];
       }
     }
-    if (!empty($bank_account_ids)) {
-      $iban_type = civicrm_api3('OptionValue', 'getvalue', array(
-        'option_group_id' => 'civicrm_banking.reference_types',
-        'return'          => 'id',
-        'value'           => 'IBAN'));
-      $ba_reference_query = civicrm_api3('BankingAccountReference', 'get', array(
-        'ba_id'             => array('IN' => $bank_account_ids),
-        'reference_type_id' => $iban_type,
-        'options'           => array('limit' => 0),
-        'return'            => 'ba_id,reference'));
-      foreach ($ba_reference_query['values'] as $reference) {
-        $baId2reference[$reference['ba_id']] = $reference['reference'];
-      }
-    }
-
+    $baId2reference = self::getBankAccounts($bank_account_ids);
 
     // manipulate data
     foreach ($rows as &$row) {
@@ -176,4 +221,78 @@ class CRM_Uimods_Tools_SearchTableAdjustments {
       }
     }
   }
+
+  /**
+   * Calculate a string representation of the payment mode,
+   *  e.g. "€120.00<br/>(€10.00 monthly)"
+   *
+   * @return array membershipID => string
+   */
+  protected static function getMembershipPaymentModes($membership_ids) {
+    $payment_modes = array();
+    if (empty($membership_ids)) {
+      return $payment_modes;
+    }
+
+    // find the fields
+    $annual_field    = 'custom_31';
+    $frequency_field = 'custom_32';
+
+    // load payment frequency labels
+    $payment_frequencies = array();
+    $payment_frequency_query = civicrm_api3('OptionValue', 'get', array(
+      'return'          => 'label,value',
+      'option_group_id' => 'payment_frequency',
+      'options'         => array('limit' => 0),
+    ));
+    foreach ($payment_frequency_query['values'] as $frequency) {
+      $payment_frequencies[$frequency['value']] = $frequency['label'];
+    }
+
+    // then: load the custom fields
+    $membership_query = civicrm_api3('Membership', 'get', array(
+      'id'      => array('IN' => $membership_ids),
+      'return'  => "id,{$annual_field},{$frequency_field}",
+      'options' => array('limit' => 0)));
+
+    foreach ($membership_query['values'] as $membership) {
+      if (empty($membership[$annual_field])) continue;
+      $annual_amount = $membership[$annual_field];
+      $payment_mode = CRM_Utils_Money::format($annual_amount);
+      if (!empty($membership[$frequency_field]) && $membership[$frequency_field] > 1) {
+        $frequency     = $membership[$frequency_field];
+        $payment_mode .= "<br/>(";
+        $payment_mode .= CRM_Utils_Money::format($annual_amount/$frequency);
+        $payment_mode .= " {$payment_frequencies[$frequency]})";
+      }
+      $payment_mode = str_replace(' ', '&nbsp;', $payment_mode); // avoid linebreaks
+      $payment_modes[$membership['id']] = $payment_mode;
+    }
+
+    return $payment_modes;
+  }
+
+
+  /**
+   * generate a list of IBAN bank accounts
+   */
+  public static function getBankAccounts($bank_account_ids) {
+    $baId2reference = array();
+    if (!empty($bank_account_ids)) {
+      $iban_type = civicrm_api3('OptionValue', 'getvalue', array(
+        'option_group_id' => 'civicrm_banking.reference_types',
+        'return'          => 'id',
+        'value'           => 'IBAN'));
+      $ba_reference_query = civicrm_api3('BankingAccountReference', 'get', array(
+        'ba_id'             => array('IN' => $bank_account_ids),
+        'reference_type_id' => $iban_type,
+        'options'           => array('limit' => 0),
+        'return'            => 'ba_id,reference'));
+      foreach ($ba_reference_query['values'] as $reference) {
+        $baId2reference[$reference['ba_id']] = $reference['reference'];
+      }
+    }
+    return $baId2reference;
+  }
 }
+
