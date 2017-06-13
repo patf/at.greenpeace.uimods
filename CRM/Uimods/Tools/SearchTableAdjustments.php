@@ -13,6 +13,7 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+// for contribution table
 define('UIMODS_STA_CAMPAIGN_COLUMN',          2);
 define('UIMODS_STA_CAMPAIGN_FIELD',           'contribution_source');
 define('UIMODS_STA_PAYMENTINSTRUMENT_COLUMN', 4);
@@ -20,15 +21,45 @@ define('UIMODS_STA_PAYMENTINSTRUMENT_FIELD',  'thankyou_date');
 define('UIMODS_STA_BANKACCOUNT_COLUMN',       6);
 define('UIMODS_STA_BANKACCOUNT_FIELD',        'product_name');
 
+// for membership search table
+define('UIMODS_STA_MEMBERSHIPID_COLUMN',      6);
+define('UIMODS_STA_MEMBERSHIPID_FIELD',       'membership_source');
+define('UIMODS_STA_MEMBERSHIPPAYMENT_COLUMN', 8);
+define('UIMODS_STA_MEMBERSHIPPAYMENT_FIELD',  'auto_renew');
+
 /**
  * Keep birth_date and birth year in sync
  */
 class CRM_Uimods_Tools_SearchTableAdjustments {
+
+  /**
+   * Modify the contribution search result table (GP-716)
+   */
+  public static function adjustMembershipTable($objectName, &$headers, &$rows, &$selector) {
+    // adjust headers
+    $headers[UIMODS_STA_MEMBERSHIPID_COLUMN]['name'] = "ID";
+    unset($headers[UIMODS_STA_MEMBERSHIPID_COLUMN]['sort']);
+    unset($headers[UIMODS_STA_MEMBERSHIPID_COLUMN]['direction']);
+
+    $headers[UIMODS_STA_MEMBERSHIPPAYMENT_COLUMN]['name'] = "Payment";
+    unset($headers[UIMODS_STA_MEMBERSHIPPAYMENT_COLUMN]['sort']);
+    unset($headers[UIMODS_STA_MEMBERSHIPPAYMENT_COLUMN]['direction']);
+
+    // manipulate data
+    foreach ($rows as &$row) {
+      $membership_id = $row['membership_id'];
+
+      // set ID
+      $row[UIMODS_STA_MEMBERSHIPID_FIELD] = "#{$membership_id}";
+      $row[UIMODS_STA_MEMBERSHIPPAYMENT_FIELD] = "TEST-TEST";
+    }
+  }
+
   /**
    * Modify the contribution search result table (GP-716)
    */
   public static function adjustContributionTable($objectName, &$headers, &$rows, &$selector) {
-    // adjuste headers
+    // adjust headers
     $headers[UIMODS_STA_CAMPAIGN_COLUMN]['name']          = "Campaign";
     $headers[UIMODS_STA_PAYMENTINSTRUMENT_COLUMN]['name'] = "Paid By";
     $headers[UIMODS_STA_BANKACCOUNT_COLUMN]['name']       = "Donor's BA";

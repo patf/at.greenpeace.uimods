@@ -35,6 +35,8 @@ function uimods_civicrm_custom( $op, $groupID, $entityID, &$params ) {
 function uimods_civicrm_searchColumns( $objectName, &$headers, &$rows, &$selector ) {
   if ($objectName == 'contribution') {
     CRM_Uimods_Tools_SearchTableAdjustments::adjustContributionTable($objectName, $headers, $rows, $selector);
+  } elseif ($objectName == 'membership') {
+    CRM_Uimods_Tools_SearchTableAdjustments::adjustMembershipTable($objectName, $headers, $rows, $selector);
   }
 }
 
