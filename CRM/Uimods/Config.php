@@ -28,6 +28,10 @@ class CRM_Uimods_Config {
   protected static $incoming_ba_field = NULL;
   protected static $membership_annual_field = NULL;
   protected static $membership_frequency_field = NULL;
+  protected static $membership_payment_instrument_field = NULL;
+
+  protected static $payment_frequencies = NULL;
+  protected static $payment_instruments = NULL;
 
   /**
    * Internal constructor
@@ -63,6 +67,44 @@ class CRM_Uimods_Config {
   }
 
   /**
+   * get a list of payment_instruments (id => label)
+   */
+  public static function getPaymentInstruments() {
+    if (self::$payment_instruments === NULL) {
+      $payment_instruments = array();
+      $payment_instrument_query = civicrm_api3('OptionValue', 'get', array(
+        'return'          => 'label,value',
+        'option_group_id' => 'payment_instrument',
+        'options'         => array('limit' => 0),
+      ));
+      foreach ($payment_instrument_query['values'] as $instrument) {
+        $payment_instruments[$instrument['value']] = $instrument['label'];
+      }
+      self::$payment_instruments = $payment_instruments;
+    }
+    return self::$payment_instruments;
+  }
+
+  /**
+   * get a list of payment_frequencies (id => label)
+   */
+  public static function getPaymentFrequencies() {
+    if (self::$payment_frequencies === NULL) {
+      $payment_frequencies = array();
+      $payment_frequency_query = civicrm_api3('OptionValue', 'get', array(
+        'return'          => 'label,value',
+        'option_group_id' => 'payment_frequency',
+        'options'         => array('limit' => 0),
+      ));
+      foreach ($payment_frequency_query['values'] as $frequency) {
+        $payment_frequencies[$frequency['value']] = $frequency['label'];
+      }
+      self::$payment_frequencies = $payment_frequencies;
+    }
+    return self::$payment_frequencies;
+  }
+
+  /**
    * Get the custom_xx field name for the contribution's incoming bank account
    *
    * @return string custom_xx
@@ -91,6 +133,22 @@ class CRM_Uimods_Config {
     }
     return 'custom_' . self::$membership_annual_field;
   }
+
+  /**
+   * Get the custom_xx field name for the membership's annual field
+   *
+   * @return string custom_xx
+   */
+  public static function getMembershipPaymentInstrumentField() {
+    if (self::$membership_payment_instrument_field === NULL) {
+      self::$membership_payment_instrument_field = civicrm_api3('CustomField', 'getvalue', array(
+        'return'          => 'id',
+        'name'            => 'payment_instrument',
+        'custom_group_id' => 'membership_payment'));
+    }
+    return 'custom_' . self::$membership_payment_instrument_field;
+  }
+
 
   /**
    * Get the custom_xx field name for the membership's frequency field

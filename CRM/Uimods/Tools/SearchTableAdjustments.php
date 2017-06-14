@@ -172,15 +172,7 @@ class CRM_Uimods_Tools_SearchTableAdjustments {
     }
 
     // load payment instruments
-    $payment_instruments = array();
-    $payment_instrument_query = civicrm_api3('OptionValue', 'get', array(
-      'return'          => 'label,value',
-      'option_group_id' => 'payment_instrument',
-      'options'         => array('limit' => 0),
-    ));
-    foreach ($payment_instrument_query['values'] as $instrument) {
-      $payment_instruments[$instrument['value']] = $instrument['label'];
-    }
+    $payment_instruments = CRM_Uimods_Config::getPaymentInstruments();
 
     // load bank references
     $bank_account_ids = array();
@@ -245,22 +237,16 @@ class CRM_Uimods_Tools_SearchTableAdjustments {
     // find the fields
     $annual_field    = CRM_Uimods_Config::getMembershipAnnualField();
     $frequency_field = CRM_Uimods_Config::getMembershipFrequencyField();
+    $pi_field        = CRM_Uimods_Config::getMembershipPaymentInstrumentField();
 
-    // load payment frequency labels
-    $payment_frequencies = array();
-    $payment_frequency_query = civicrm_api3('OptionValue', 'get', array(
-      'return'          => 'label,value',
-      'option_group_id' => 'payment_frequency',
-      'options'         => array('limit' => 0),
-    ));
-    foreach ($payment_frequency_query['values'] as $frequency) {
-      $payment_frequencies[$frequency['value']] = $frequency['label'];
-    }
+    // load some lists
+    $payment_instruments = CRM_Uimods_Config::getPaymentInstruments();
+    $payment_frequencies = CRM_Uimods_Config::getPaymentFrequencies();
 
     // then: load the custom fields
     $membership_query = civicrm_api3('Membership', 'get', array(
       'id'      => array('IN' => $membership_ids),
-      'return'  => "id,{$annual_field},{$frequency_field}",
+      'return'  => "id,{$annual_field},{$frequency_field},{$pi_field}",
       'options' => array('limit' => 0)));
 
     foreach ($membership_query['values'] as $membership) {
@@ -269,6 +255,10 @@ class CRM_Uimods_Tools_SearchTableAdjustments {
       $payment_mode = CRM_Utils_Money::format($annual_amount);
       if (!empty($membership[$frequency_field]) && $membership[$frequency_field] > 1) {
         $frequency     = $membership[$frequency_field];
+        if (is_numeric($membership[$pi_field])) {
+          $payment_instrument = $payment_instruments[$membership[$pi_field]];
+          $payment_mode .= " ({$payment_instrument})";
+        }
         $payment_mode .= "<br/>(";
         $payment_mode .= CRM_Utils_Money::format($annual_amount/$frequency);
         $payment_mode .= " {$payment_frequencies[$frequency]})";
