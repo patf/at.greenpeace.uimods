@@ -71,7 +71,7 @@ class CRM_Uimods_Tools_SearchTableAdjustments {
     $smarty = CRM_Core_Smarty::singleton();
     $activeMembers   = $smarty->get_template_vars('activeMembers');
     $inActiveMembers = $smarty->get_template_vars('inActiveMembers');
-    if (empty($activeMembers) || empty($inActiveMembers)) {
+    if (empty($activeMembers) && empty($inActiveMembers)) {
       return;
     }
 
@@ -255,7 +255,7 @@ class CRM_Uimods_Tools_SearchTableAdjustments {
       $payment_mode = CRM_Utils_Money::format($annual_amount);
       if (!empty($membership[$frequency_field]) && $membership[$frequency_field] > 1) {
         $frequency     = $membership[$frequency_field];
-        if (is_numeric($membership[$pi_field])) {
+        if (!empty($payment_instruments[$membership[$pi_field]])) {
           $payment_instrument = $payment_instruments[$membership[$pi_field]];
           $payment_mode .= " ({$payment_instrument})";
         }
