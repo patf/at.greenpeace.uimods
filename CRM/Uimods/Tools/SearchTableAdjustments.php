@@ -71,6 +71,9 @@ class CRM_Uimods_Tools_SearchTableAdjustments {
     $smarty = CRM_Core_Smarty::singleton();
     $activeMembers   = $smarty->get_template_vars('activeMembers');
     $inActiveMembers = $smarty->get_template_vars('inActiveMembers');
+    if (empty($activeMembers) || empty($inActiveMembers)) {
+      return;
+    }
 
     // collect membership ids
     $membership_ids = array();
@@ -161,8 +164,9 @@ class CRM_Uimods_Tools_SearchTableAdjustments {
     $campaign_list = array();
     if (!empty($campaign_ids)) {
       $result = civicrm_api3('Campaign', 'get', array(
-        'return' => "title",
-        'id'     => array('IN' => $campaign_ids),
+        'return'  => "title",
+        'id'      => array('IN' => $campaign_ids),
+        'options' => array('limit' => 0),
       ));
       $campaign_list = $result['values'];
     }
