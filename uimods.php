@@ -14,6 +14,28 @@
 
 require_once 'uimods.civix.php';
 
+/**
+ * Implements hook_civicrm_links()
+ */
+function uimods_civicrm_links($op, $objectName, $objectId, &$links, &$mask, &$values) {
+  if ($op=='contribution.selector.row') {
+    // add a Contract link to contributions that are connected to memberships
+    $contribution_id = (int) $objectId;
+    if ($contribution_id) {
+      $membership_id = CRM_Core_DAO::singleValueQuery("SELECT membership_id FROM civicrm_membership_payment WHERE contribution_id = {$contribution_id} LIMIT 1");
+      if ($membership_id) {
+        $contact_id = CRM_Core_DAO::singleValueQuery("SELECT contact_id FROM civicrm_membership WHERE id = {$membership_id} LIMIT 1");
+        if ($contact_id) {
+          $links[] = array(
+            'name'  => 'Contract',
+            'title' => 'View Contract',
+            'url'   => 'civicrm/contact/view/membership',
+            'qs'    => "reset=1&id={$membership_id}&cid={$contact_id}&action=view");
+        }
+      }
+    }
+  }
+}
 
 /**
  * Implements hook_civicrm_post()
