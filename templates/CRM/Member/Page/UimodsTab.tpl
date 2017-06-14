@@ -79,7 +79,7 @@
                 <th>{ts}Status{/ts}</th>
                 <th>{ts}ID{/ts}</th>
                 <th>{ts}Payment Contract{/ts}</th>
-                <th>{ts}Related{/ts}</th>
+                <th>{ts}Contract Number{/ts}</th>
                 <th></th>
             </tr>
             </thead>
@@ -95,8 +95,8 @@
                 <td class="crm-membership-status">{$activeMember.status}</td>
                 <td class="crm-membership-source"><code>{$activeMember.id}</code></td>
                 <td class="crm-membership-auto_renew">{$activeMember.payment_mode}</td>
-                <td class="crm-membership-related_count">{$activeMember.related_count}</td>
-    <td>
+                <td class="crm-membership-contract_number">{$activeMember.contract_number}</td>
+                <td>
                     {$activeMember.action|replace:'xx':$activeMember.id}
                     {if $activeMember.owner_membership_id}
                       <a href="{crmURL p='civicrm/membership/view' q="reset=1&id=`$activeMember.owner_membership_id`&action=view&context=membership&selectedChild=member"}" title="{ts}View Primary member record{/ts}" class="crm-hover-button action-item">{ts}View Primary{/ts}</a>
@@ -123,7 +123,7 @@
                 <th>{ts}Status{/ts}</th>
                 <th>{ts}ID{/ts}</th>
                 <th>{ts}Payment Contract{/ts}</th>
-    <th></th>
+                <th></th>
             </tr>
             </thead>
             {foreach from=$inActiveMembers item=inActiveMember}

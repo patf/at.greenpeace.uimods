@@ -23,6 +23,7 @@ define('UIMODS_STA_MEMBERSHIPID_COLUMN',      6);
 define('UIMODS_STA_MEMBERSHIPID_FIELD',       'membership_source');
 define('UIMODS_STA_MEMBERSHIPPAYMENT_COLUMN', 8);
 define('UIMODS_STA_MEMBERSHIPPAYMENT_FIELD',  'payment_mode');
+define('UIMODS_STA_CONTRACTNUMBER_FIELD',     'contract_number');
 
 /**
  * Keep birth_date and birth year in sync
@@ -48,6 +49,10 @@ class CRM_Uimods_Tools_SearchTableAdjustments {
       if (is_numeric($row['membership_id'])) {
         $membership_ids[] = $row['membership_id'];
       }
+    }
+
+    if (empty($membership_ids)) {
+      return;
     }
 
     // load payment data
@@ -87,9 +92,29 @@ class CRM_Uimods_Tools_SearchTableAdjustments {
     // load payment data
     $payment_modes = self::getMembershipPaymentModes($membership_ids);
 
-    // adjust payment data
+    // load contract numbers
+    $contract_numbers = array();
+    $contract_number_field = CRM_Uimods_Config::getMembershipContractNumberField();
+    $contract_number_query = civicrm_api3('Membership', 'get', array(
+      'return'  => "id,{$contract_number_field}",
+      'id'      => array('IN' => $membership_ids),
+      'options' => array('limit' => 0),
+      ));
+    foreach ($contract_number_query['values'] as $contract) {
+      if (isset($contract[$contract_number_field])) {
+        $contract_numbers[$contract['id']] = $contract[$contract_number_field];
+      }
+    }
+
+    // adjust data
     foreach ($activeMembers as $membership_id => &$membership) {
       $membership[UIMODS_STA_MEMBERSHIPPAYMENT_FIELD] = $payment_modes[$membership_id];
+
+      if (isset($contract_numbers[$membership_id])) {
+        $membership[UIMODS_STA_CONTRACTNUMBER_FIELD] = $contract_numbers[$membership_id];
+      } else {
+        $membership[UIMODS_STA_CONTRACTNUMBER_FIELD] = '';
+      }
     }
     foreach ($inActiveMembers as $membership_id => $membership) {
       $membership[UIMODS_STA_MEMBERSHIPPAYMENT_FIELD] = $payment_modes[$membership_id];

@@ -29,6 +29,7 @@ class CRM_Uimods_Config {
   protected static $membership_annual_field = NULL;
   protected static $membership_frequency_field = NULL;
   protected static $membership_payment_instrument_field = NULL;
+  protected static $membership_contract_number_field = NULL;
 
   protected static $payment_frequencies = NULL;
   protected static $payment_instruments = NULL;
@@ -149,6 +150,21 @@ class CRM_Uimods_Config {
     return 'custom_' . self::$membership_payment_instrument_field;
   }
 
+
+  /**
+   * Get the custom_xx field name for the membership's Contract Number
+   *
+   * @return string custom_xx
+   */
+  public static function getMembershipContractNumberField() {
+    if (self::$membership_contract_number_field === NULL) {
+      self::$membership_contract_number_field = civicrm_api3('CustomField', 'getvalue', array(
+        'return'          => 'id',
+        'name'            => 'membership_contract',
+        'custom_group_id' => 'membership_general'));
+    }
+    return 'custom_' . self::$membership_contract_number_field;
+  }
 
   /**
    * Get the custom_xx field name for the membership's frequency field
