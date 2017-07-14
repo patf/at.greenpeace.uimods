@@ -135,7 +135,7 @@
                 <td class="crm-membership-end_date">{$inActiveMember.end_date|crmDate}</td>
                 <td class="crm-membership-status">{$inActiveMember.status}</td>
                 <td class="crm-membership-source"><code>{$inActiveMember.id}</code></td>
-                <td class="crm-membership-payment_mode">{$activeMember.payment_mode}</td>
+                <td class="crm-membership-payment_mode">{$inActiveMember.payment_mode}</td>
     <td>{$inActiveMember.action|replace:'xx':$inActiveMember.id}
     {if $inActiveMember.owner_membership_id}
       <a href="{crmURL p='civicrm/membership/view' q="reset=1&id=`$inActiveMember.owner_membership_id`&action=view&context=membership&selectedChild=member"}" title="{ts}View Primary member record{/ts}" class="crm-hover-button action-item">{ts}View Primary{/ts}
