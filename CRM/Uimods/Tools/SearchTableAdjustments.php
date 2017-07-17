@@ -116,7 +116,7 @@ class CRM_Uimods_Tools_SearchTableAdjustments {
         $membership[UIMODS_STA_CONTRACTNUMBER_FIELD] = '';
       }
     }
-    foreach ($inActiveMembers as $membership_id => $membership) {
+    foreach ($inActiveMembers as $membership_id => &$membership) {
       $membership[UIMODS_STA_MEMBERSHIPPAYMENT_FIELD] = $payment_modes[$membership_id];
     }
 
