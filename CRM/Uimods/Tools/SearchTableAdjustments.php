@@ -278,7 +278,7 @@ class CRM_Uimods_Tools_SearchTableAdjustments {
       if (empty($membership[$annual_field])) continue;
       $annual_amount = $membership[$annual_field];
       $payment_mode = CRM_Utils_Money::format($annual_amount);
-      if (!empty($membership[$frequency_field]) && $membership[$frequency_field] > 1) {
+      if (!empty($membership[$frequency_field]) && $membership[$frequency_field] >= 1) {
         $frequency     = $membership[$frequency_field];
         if (!empty($membership[$pi_field]) && !empty($payment_instruments[$membership[$pi_field]])) {
           $payment_instrument = $payment_instruments[$membership[$pi_field]];
