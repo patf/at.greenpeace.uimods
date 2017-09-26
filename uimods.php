@@ -71,6 +71,10 @@ function uimods_civicrm_buildForm($formName, &$form) {
   // hook in the various renderers
   CRM_Uimods_Tools_BankAccount::renderForm($formName, $form);
   CRM_Uimods_Tools_BirthYear::process_buildForm($formName, $form);
+  if ($formName == "CRM_Contact_Form_Merge") {
+    require_once 'CRM/Uimods/MergeFormUIMods.php';
+    CRM_Uimods_MergeFromUIMods::buildFormHook($formName, $form);
+  }
 }
 
 /**
