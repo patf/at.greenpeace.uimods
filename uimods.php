@@ -15,6 +15,17 @@
 require_once 'uimods.civix.php';
 
 /**
+ * Implements hook_civicrm_pre()
+ */
+function uimods_civicrm_pre($op, $objectName, $id, &$params) {
+  // GP-815: for newly created contacts:
+  if ($op == 'create' && !$id && ($objectName == 'Individual' || $objectName == 'Organization')) {
+    // ...set preferred language to German
+    $params['preferred_language'] = 'de_DE';
+  }
+}
+
+/**
  * Implements hook_civicrm_links()
  */
 function uimods_civicrm_links($op, $objectName, $objectId, &$links, &$mask, &$values) {
