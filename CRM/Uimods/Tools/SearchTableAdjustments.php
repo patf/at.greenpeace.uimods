@@ -185,6 +185,35 @@ class CRM_Uimods_Tools_SearchTableAdjustments {
       'options' => array('limit' => 0),
       ));
 
+    // load assignment to memberships
+    $contribution2membership = array();
+    $membership_payments = civicrm_api3('MembershipPayment', 'get', array(
+      'return'          => "id,contribution_id,membership_id",
+      'contribution_id' => array('IN' => $contribution_ids),
+      'options'         => array('limit' => 0),
+      ));
+    $membership_ids = array();
+    foreach ($membership_payments['values'] as $membership_payment) {
+      // $membership_ids[] = $membership_payment['membership_id'];
+      $contribution2membership[$membership_payment['contribution_id']] = $membership_payment['membership_id'];
+    }
+    // re-enable if we want the reference number instead of ID
+    // $membership2number = array();
+    // $membership_number_field = CRM_Uimods_Config::getMembershipNumberField();
+    // $memberships = civicrm_api3('Membership', 'get', array(
+    //   'return'          => "id,{$membership_number_field}",
+    //   'membership_id'   => array('IN' => $membership_ids),
+    //   'sequential'      => 0,
+    //   'options'         => array('limit' => 0),
+    //   ));
+    // foreach ($contribution2membership as $mcontribution_id => $membership_id) {
+    //   if (isset($contribution2membership[$mcontribution_id])) {
+    //     if (isset($memberships['values'][$membership_id][$membership_number_field])) {
+    //       $membership2number[$membership_id] = $memberships['values'][$membership_id][$membership_number_field];
+    //     }
+    //   }
+    // }
+
     // load campaigns
     $campaign_list = array();
     if (!empty($campaign_ids)) {
@@ -219,6 +248,13 @@ class CRM_Uimods_Tools_SearchTableAdjustments {
         $row[UIMODS_STA_CAMPAIGN_FIELD] = "<a href='{$link}'>{$campaign['title']}</a>";
       } else {
         $row[UIMODS_STA_CAMPAIGN_FIELD] = '';
+      }
+
+      // set membership IDs
+      if (isset($contribution2membership[$contribution_id])) {
+        $membership_id     = $contribution2membership[$contribution_id];
+        $link = CRM_Utils_System::url("civicrm/contact/view/membership", "reset=1&id={$membership_id}&cid={$row['contact_id']}&action=view");
+        $row['financial_type'] = "<a href='{$link}'>{$row['financial_type']} <code>[{$membership_id}]</code></a>";
       }
 
       // set bank account
