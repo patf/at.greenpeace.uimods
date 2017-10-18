@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<menu>
+  <item>
+    <path>civicrm/contribution/assign</path>
+    <page_callback>CRM_Uimods_Form_AssignContribution</page_callback>
+    <title>Assign Contribution to Contract</title>
+    <access_arguments>edit contributions</access_arguments>
+  </item>
+</menu>
