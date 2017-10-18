@@ -1,3 +1,9 @@
+Version 1.1.beta1
+=================
+- New contacts get default language de_DE (GP-815)
+- Exposed membership ID in contribution list (GP-975)
+- Added ‘assign to membership’ UI (GP-396)
+
 Version 1.0.beta3
 =================
 - Fixed annual bug (GP-1034)
