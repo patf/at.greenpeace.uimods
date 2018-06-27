@@ -299,6 +299,7 @@ class CRM_Uimods_Tools_SearchTableAdjustments {
     $annual_field    = CRM_Uimods_Config::getMembershipAnnualField();
     $frequency_field = CRM_Uimods_Config::getMembershipFrequencyField();
     $pi_field        = CRM_Uimods_Config::getMembershipPaymentInstrumentField();
+    $recurring_field = CRM_Uimods_Config::getRecurringContributionField();
 
     // load some lists
     $payment_instruments = CRM_Uimods_Config::getPaymentInstruments();
@@ -307,13 +308,21 @@ class CRM_Uimods_Tools_SearchTableAdjustments {
     // then: load the custom fields
     $membership_query = civicrm_api3('Membership', 'get', array(
       'id'      => array('IN' => $membership_ids),
-      'return'  => "id,{$annual_field},{$frequency_field},{$pi_field}",
+      'return'  => "id,{$annual_field},{$frequency_field},{$pi_field},{$recurring_field}",
       'options' => array('limit' => 0)));
 
     foreach ($membership_query['values'] as $membership) {
       if (empty($membership[$annual_field])) continue;
+      $currency = NULL;
+      if (!empty($membership[$recurring_field])) {
+        $recContribution = civicrm_api3('ContributionRecur', 'getsingle', array('id' => $membership[$recurring_field]));
+        if (!empty($recContribution['currency'])) {
+          $currency = $recContribution['currency'];
+        }
+      }
+
       $annual_amount = $membership[$annual_field];
-      $payment_mode = CRM_Utils_Money::format($annual_amount);
+      $payment_mode = CRM_Utils_Money::format($annual_amount, $currency);
       if (!empty($membership[$frequency_field]) && $membership[$frequency_field] >= 1) {
         $frequency     = $membership[$frequency_field];
         if (!empty($membership[$pi_field]) && !empty($payment_instruments[$membership[$pi_field]])) {
@@ -321,7 +330,7 @@ class CRM_Uimods_Tools_SearchTableAdjustments {
           $payment_mode .= " ({$payment_instrument})";
         }
         $payment_mode .= "<br/>(";
-        $payment_mode .= CRM_Utils_Money::format($annual_amount/$frequency);
+        $payment_mode .= CRM_Utils_Money::format($annual_amount/$frequency, $currency);
         $payment_mode .= " {$payment_frequencies[$frequency]})";
       }
       $payment_mode = str_replace(' ', '&nbsp;', $payment_mode); // avoid linebreaks
