@@ -27,4 +27,15 @@ return array(
     'is_contact' => 0,
     'description' => 'Stored information on custom fields',
   ),
+  'at_greenpeace_uimods_preferred_language' => array(
+    'group_name' => 'GP UIMods',
+    'group' => 'at_greenpeace_uimods',
+    'name' => 'at_greenpeace_uimods_preferred_language',
+    'type' => 'string',
+    'default' => 'de_DE',
+    'add' => '4.6',
+    'is_domain' => 1,
+    'is_contact' => 0,
+    'description' => 'Default preferred language for new contacts',
+  ),
  );

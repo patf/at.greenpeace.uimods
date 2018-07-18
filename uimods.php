@@ -20,8 +20,19 @@ require_once 'uimods.civix.php';
 function uimods_civicrm_pre($op, $objectName, $id, &$params) {
   // GP-815: for newly created contacts:
   if ($op == 'create' && !$id && ($objectName == 'Individual' || $objectName == 'Organization')) {
-    // ...set preferred language to German
-    $params['preferred_language'] = 'de_DE';
+    $preferredLanguage = civicrm_api3('Setting', 'GetValue', [
+      'name' => 'at_greenpeace_uimods_preferred_language',
+      'group' => 'GP UIMods'
+    ]);
+    if (empty($preferredLanguage)) {
+      $default = civicrm_api3('Setting', 'getdefaults', [
+        'name' => 'at_greenpeace_uimods_preferred_language',
+        'group' => 'GP UIMods'
+      ]);
+      $preferredLanguage = reset($default['values'])['at_greenpeace_uimods_preferred_language'];
+    }
+    // ...set preferred language to configured language
+    $params['preferred_language'] = $preferredLanguage;
   }
 }
 
