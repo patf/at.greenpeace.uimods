@@ -27,8 +27,18 @@ class CRM_Uimods_MergeFromUIMods {
   public static function buildFormHook($formName, &$form) {
 
     $script = file_get_contents(__DIR__ . '/../../js/merge_form_mods.js');
+    // fields from the sumfields extensions aren't relevant, so we hide them
+    $result = civicrm_api3('CustomField', 'get', [
+      'custom_group_id' => 'Summary_Fields'
+    ]);
+    $summaryCustomFields = [];
+    foreach ($result['values'] as $customField) {
+      $summaryCustomFields[] = 'custom_' . $customField['id'];
+    }
+    CRM_Core_Resources::singleton()->addVars('hiddenCustomFields', $summaryCustomFields);
     CRM_Core_Region::instance('page-footer')->add(array(
       'script' => $script,
     ));
+
   }
 }
