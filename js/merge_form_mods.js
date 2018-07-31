@@ -18,3 +18,11 @@ cj("#operation\\[move_rel_table_memberships\\]\\[add\\]").prop('checked', true);
 cj("#operation\\[move_rel_table_memberships\\]\\[add\\]").attr('disabled', 'disabled');
 // FixMe: Not the cleanest way, but apparently checkboxes can't be set to readonly, and disabled doesn't transfer the value
 cj("#operation\\[move_rel_table_memberships\\]\\[add\\]").after('<input name="operation[move_rel_table_memberships][add]" type="hidden" value="1" />');
+
+// Hide summary fields header
+CRM.$('tr:contains("Summary Fields")').hide();
+
+// hide unwanted custom fields
+CRM.vars.hiddenCustomFields.forEach(function(field) {
+  CRM.$('tr:has(input[name="move_' + field + '"])').hide();
+});
